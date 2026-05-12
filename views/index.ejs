@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> 
+    <title>Beleza Ecoville | Salão Premium</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <link rel="stylesheet" href="/css/site.css">
+</head>
+<body class="landing-page">
+
+    <nav class="navbar navbar-expand-lg sticky-top navbar-site">
+        <div class="container">
+            <a class="navbar-brand py-0" href="#">
+                <img src="/images/logo.png" height="50" alt="Beleza Ecoville" style="object-fit: contain;">
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav align-items-center">
+                    <li class="nav-item"><a class="nav-link nav-link-site" href="#inicio">Início</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-site" href="#servicos">Menu</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-site" href="#sobre">O Salão</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-site" href="/login" style="color: var(--cor-dourado) !important;"><i class="bi bi-person-badge"></i> Equipe</a></li>
+                    <li class="nav-item ms-lg-3 mt-3 mt-lg-0">
+                        <a href="https://wa.me/5541995469023?text=Olá! Gostaria de agendar um horário." class="btn btn-agendar shadow-sm" target="_blank">Agendar</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <section id="inicio" class="hero-card">
+            <div class="hero-img"></div>
+            <div class="hero-content">
+                <h1 class="mb-2">Seu novo destino de beleza.</h1>
+                <p class="mb-4">Beauty Center completo com estrutura premium no Ecoville.</p>
+                <div class="links-panel">
+                    <a href="https://wa.me/5541995469023" target="_blank" class="link-btn btn-assistente">
+                        <i class="bi bi-whatsapp"></i><span>Agendar pelo WhatsApp</span>
+                    </a>
+                    <a href="#servicos" class="link-btn"><i class="bi bi-scissors"></i> Menu</a>
+                    <a href="https://instagram.com/belezaecoville" target="_blank" class="link-btn"><i class="bi bi-instagram"></i> Instagram</a>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=Beleza+Ecoville+Curitiba" target="_blank" class="link-btn"><i class="bi bi-geo-alt-fill"></i> Chegar</a>
+                    <a href="tel:4130238225" class="link-btn"><i class="bi bi-telephone-fill"></i> Ligar</a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <section id="servicos" class="section-padding bg-creme mt-5">
+        <div class="container">
+            <div class="section-title">
+                <h2>Menu de Serviços</h2>
+                <p>Experiências exclusivas para realçar sua beleza.</p>
+            </div>
+            
+            <div class="row">
+                <% Object.keys(menuSiteAgrupado).forEach(categoria => { %>
+                    <div class="col-lg-6 mb-5">
+                        <div class="categoria-box">
+                            <h3 class="mb-4 d-flex align-items-center">
+                                <i class="bi bi-stars text-warning me-2 fs-5"></i> <%= categoria %>
+                            </h3>
+                            <ul class="lista-servicos">
+                                <% menuSiteAgrupado[categoria].forEach(item => { %>
+                                    <li class="item-servico">
+                                        <div class="d-flex justify-content-between align-items-baseline">
+                                            <span class="nome-servico"><%= item.nome %></span>
+                                            <span class="preco-servico"><i class="bi bi-clock me-1" style="font-size: 0.8rem; opacity: 0.7;"></i> <%= item.tempo || '60 min' %></span>
+                                        </div>
+                                        <% if(item.descricao) { %><small class="desc-servico"><%= item.descricao %></small><% } %>
+                                        <a href="https://wa.me/5541995469023?text=Olá! Gostaria de agendar: <%= item.nome %>" class="btn-agendar-item" target="_blank">
+                                            Consultar Valor e Agendar <i class="bi bi-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                <% }); %>
+                            </ul>
+                        </div>
+                    </div>
+                <% }) %>
+                <% if(Object.keys(menuSiteAgrupado).length === 0) { %>
+                    <div class="col-12 text-center text-white-50"><p>Menu sendo atualizado...</p></div>
+                <% } %>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer-site">
+        <div class="container text-center text-white-50">
+            <p class="mb-0">© 2026 Beleza Ecoville. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <a href="https://wa.me/5541995469023" class="whatsapp-float" target="_blank"><i class="bi bi-whatsapp"></i></a>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

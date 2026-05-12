@@ -1,0 +1,21 @@
+{
+  "name": "Beleza Ecoville",
+  "short_name": "Beleza Ecoville",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#4A3B32",
+  "theme_color": "#4A3B32",
+  "description": "Agendamento e Promoções Exclusivas",
+  "icons": [
+    {
+      "src": "/images/logo-icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/logo-icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

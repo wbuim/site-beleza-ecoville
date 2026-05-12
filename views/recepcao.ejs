@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório Gerencial | Beleza Ecoville</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+<body class="bg-light">
+    <div class="container py-4">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="mb-0">Painel de Auditoria Integrado</h3>
+            <div>
+                <% if(perfil === 'admin') { %>
+                    <a href="/admin" class="btn btn-secondary me-2"><i class="bi bi-arrow-left"></i> Voltar ao Admin</a>
+                <% } else { %>
+                    <a href="/estoque" class="btn btn-secondary me-2"><i class="bi bi-arrow-left"></i> Voltar ao Estoque</a>
+                <% } %>
+                <a href="/logout" class="btn btn-danger">Sair</a>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 mb-4 bg-white">
+            <div class="card-body">
+                <form action="/recepcao" method="GET" class="row align-items-end g-3">
+                    <div class="col-md-3">
+                        <label class="form-label text-muted small fw-bold mb-1"><i class="bi bi-calendar-event"></i> Data Inicial</label>
+                        <input type="date" name="data_inicio" class="form-control" value="<%= filtros.data_inicio || '' %>" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label text-muted small fw-bold mb-1"><i class="bi bi-calendar-event"></i> Data Final</label>
+                        <input type="date" name="data_fim" class="form-control" value="<%= filtros.data_fim || '' %>" required>
+                    </div>
+                    <div class="col-md-6 d-flex flex-wrap gap-2">
+                        <button type="submit" class="btn btn-primary fw-bold"><i class="bi bi-search"></i> Filtrar</button>
+                        <% if(filtros.data_inicio) { %>
+                            <a href="/recepcao" class="btn btn-outline-secondary">Limpar Filtro</a>
+                        <% } %>
+                        
+                        <button type="button" class="btn btn-success fw-bold ms-auto" onclick="exportarExcel()">
+                            <i class="bi bi-file-earmark-excel"></i> Exportar Planilha
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-dark text-white py-3 d-flex justify-content-between align-items-center">
+                <h6 class="mb-0"><i class="bi bi-table me-2"></i>Cruzamento: Produção x Esterilização</h6>
+                <% if(filtros.data_inicio) { %>
+                    <span class="badge bg-secondary">Período: <%= filtros.data_inicio.split('-').reverse().join('/') %> até <%= filtros.data_fim.split('-').reverse().join('/') %></span>
+                <% } else { %>
+                    <span class="badge bg-secondary">Mostrando Todo o Histórico</span>
+                <% } %>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Manicure</th>
+                                <th class="text-center bg-light border-end border-start">Clientes (Período)</th>
+                                <th class="text-center">Qtd Alicates</th>
+                                <th>Data do Envio</th>
+                                <th>Status / Retorno</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% registros.forEach(r => { %>
+                                <tr>
+                                    <td class="fw-bold"><%= r.manicure %></td>
+                                    
+                                    <td class="text-center bg-light border-end border-start">
+                                        <% if(atendimentosMap[r.manicure]) { %>
+                                            <span class="badge bg-success fs-6"><%= atendimentosMap[r.manicure] %></span>
+                                            <br><small class="text-muted" style="font-size: 0.65rem;">atendimentos</small>
+                                        <% } else { %>
+                                            <span class="badge bg-secondary text-light">Não lançado</span>
+                                        <% } %>
+                                    </td>
+
+                                    <td class="text-center">
+                                        <span class="fs-5 fw-bold text-primary"><%= r.quantidade %></span>
+                                        
+                                        <% if(r.historico_alteracoes && r.historico_alteracoes.length > 0) { %>
+                                            <div class="mt-2 text-start bg-white p-2 rounded border border-warning shadow-sm mx-auto" style="font-size: 0.75rem; max-width: 200px;">
+                                                <span class="text-warning text-dark fw-bold d-block border-bottom border-warning pb-1 mb-1">
+                                                    <i class="bi bi-pencil-square"></i> Correções:
+                                                </span>
+                                                <% r.historico_alteracoes.forEach(h => { %>
+                                                    <div class="mb-1">
+                                                        <span class="text-muted"><%= h.data %></span><br>
+                                                        Era <b><%= h.de %></b> ➔ Ficou <b><%= h.para %></b><br>
+                                                        <span class="badge <%= h.autor === 'Estoque' ? 'bg-dark' : 'bg-info text-dark' %> mt-1">
+                                                            Alterado por: <%= h.autor ? h.autor : r.manicure %>
+                                                        </span>
+                                                    </div>
+                                                <% }) %>
+                                            </div>
+                                        <% } %>
+                                    </td>
+
+                                    <td class="small text-muted"><%= r.data_envio %></td>
+                                    
+                                    <td>
+                                        <% if(r.status === 'Pendente') { %>
+                                            <span class="badge bg-warning text-dark mb-1">Pendente Estoque</span>
+                                        <% } else if(r.status === 'Aprovado') { %>
+                                            <span class="badge bg-primary mb-1">Na Autoclave</span><br>
+                                            <small class="text-muted" style="font-size: 0.7rem;">Entrou: <br><%= r.data_aprovacao %></small>
+                                        <% } else { %>
+                                            <span class="badge bg-success mb-1">Devolvido (Limpo)</span><br>
+                                            <small class="text-muted" style="font-size: 0.7rem;">Devolveu: <br><%= r.data_devolucao %></small>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                            <% if(registros.length === 0) { %>
+                                <tr><td colspan="5" class="text-center text-muted py-5">Nenhum registro de alicates no período selecionado.</td></tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script>
+        // Monta um objeto limpo com os dados que vieram do servidor
+        const dadosExcel = [
+            <% registros.forEach(r => { %>
+                {
+                    "Profissional": "<%= r.manicure %>",
+                    "Clientes Atendidos (Período)": "<%= atendimentosMap[r.manicure] ? atendimentosMap[r.manicure] : 'Não lançado' %>",
+                    "Qtd Alicates Sujos": <%= r.quantidade %>,
+                    "Status Atual": "<%= r.status %>",
+                    "Data de Envio": "<%= r.data_envio %>",
+                    "Data Entrada Autoclave": "<%= r.data_aprovacao ? r.data_aprovacao : '-' %>",
+                    "Data Devolução": "<%= r.data_devolucao ? r.data_devolucao : '-' %>",
+                    "Houve Correção de Qtd?": "<%= (r.historico_alteracoes && r.historico_alteracoes.length > 0) ? 'Sim' : 'Não' %>"
+                },
+            <% }) %>
+        ];
+
+        function exportarExcel() {
+            if (dadosExcel.length === 0) {
+                alert("A tabela está vazia. Não há dados para exportar neste período.");
+                return;
+            }
+
+            // Cria a folha e a pasta de trabalho do Excel
+            const worksheet = XLSX.utils.json_to_sheet(dadosExcel);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Relatório de Esterilização");
+
+            // Configura a largura das colunas para a planilha já nascer formatada
+            const wscols = [
+                {wch: 22}, // Profissional
+                {wch: 28}, // Clientes Atendidos
+                {wch: 18}, // Qtd Alicates
+                {wch: 20}, // Status Atual
+                {wch: 22}, // Data Envio
+                {wch: 22}, // Autoclave
+                {wch: 22}, // Devolução
+                {wch: 24}  // Correção
+            ];
+            worksheet['!cols'] = wscols;
+
+            // Gera o nome do arquivo com a data de hoje
+            const dataHoje = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
+            const nomeArquivo = `Relatorio_BelezaEcoville_${dataHoje}.xlsx`;
+
+            // Faz o download automático
+            XLSX.writeFile(workbook, nomeArquivo);
+        }
+    </script>
+</body>
+</html>

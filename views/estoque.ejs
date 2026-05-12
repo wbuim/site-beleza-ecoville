@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> 
+    <title>ESTOQUE | Beleza Ecoville</title>
+    
+    <link rel="icon" type="image/png" href="/images/logo-icon.png">
+    <meta name="theme-color" content="#4A3B32">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <style>
+        body { background-color: var(--cor-fundo-site); color: white; }
+        .calc-card { background: var(--cor-card); border: 1px solid var(--cor-dourado); border-radius: 15px; padding: 25px; margin-top: 15px; }
+        
+        .marca-titulo {
+            color: var(--cor-dourado); margin-top: 30px; margin-bottom: 15px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.5); padding-bottom: 5px;
+            font-family: 'Playfair Display', serif; letter-spacing: 1px; text-transform: uppercase;
+        }
+        
+        .produto-row { 
+            background: rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
+            padding: 12px; display: flex; align-items: center; justify-content: space-between; gap: 15px;
+        }
+        .produto-row:last-child { border-bottom: none; }
+        .produto-nome { font-size: 1rem; color: #F2F0E6; flex: 1; }
+        .produto-tara { font-size: 0.75rem; color: #aaa; display: block; }
+
+        .input-peso { 
+            background: #3e3028 !important; color: #D4AF37 !important; border: 1px solid #594a42 !important; 
+            width: 100px; text-align: center; font-weight: bold; font-size: 1.1rem;
+        }
+        .input-peso::placeholder { color: #555; font-size: 0.9rem; font-weight: normal; }
+        .resultado-item { width: 80px; text-align: right; font-size: 1.2rem; font-weight: bold; color: var(--cor-dourado); }
+        
+        /* Estilos das Abas */
+        .nav-pills .nav-link { color: var(--cor-dourado); border: 1px solid var(--cor-dourado); border-radius: 10px; margin: 0 5px; }
+        .nav-pills .nav-link.active { background-color: var(--cor-dourado); color: #3E3028 !important; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <div class="text-center mb-4">
+            <img src="/images/logo.png" height="50" style="filter: brightness(0) invert(1);">
+            <h4 class="mt-2 text-uppercase" style="letter-spacing: 2px; color: var(--cor-dourado);">ESTOQUE</h4>
+        </div>
+
+        <ul class="nav nav-pills nav-fill mb-2" id="estoqueTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="esterilizacao-tab" data-bs-toggle="pill" data-bs-target="#esterilizacao" type="button" role="tab">
+                    <i class="bi bi-shield-plus"></i> Autoclave
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pesagem-tab" data-bs-toggle="pill" data-bs-target="#pesagem" type="button" role="tab">
+                    <i class="bi bi-calculator"></i> Pesagem Geral
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="estoqueTabsContent">
+            
+            <div class="tab-pane fade show active" id="esterilizacao" role="tabpanel">
+                <div class="calc-card shadow mt-0">
+                    
+                    <h5 class="marca-titulo mt-0" style="color: #ffc107; border-color: rgba(255, 193, 7, 0.5);">
+                        <i class="bi bi-box-arrow-in-down"></i> 1. Aguardando Recebimento
+                    </h5>
+                    <% if(pendentes_recebimento && pendentes_recebimento.length > 0) { %>
+                        <div class="list-group mb-4">
+                            <% pendentes_recebimento.forEach(p => { %>
+                                <div class="list-group-item bg-dark text-light border-secondary mb-2 rounded">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong class="text-warning"><%= p.manicure %></strong> enviou <strong><%= p.quantidade %> alicate(s)</strong><br>
+                                            <small class="text-muted"><%= p.data_envio %></small>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-outline-light btn-sm" data-bs-toggle="collapse" data-bs-target="#edit-<%= p.id %>">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            
+                                            <form action="/estoque/aprovar" method="POST" class="m-0">
+                                                <input type="hidden" name="id" value="<%= p.id %>">
+                                                <button type="submit" class="btn btn-warning btn-sm fw-bold">Recebi</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="collapse mt-3 pt-3 border-top border-secondary" id="edit-<%= p.id %>">
+                                        <form action="/estoque/editar" method="POST" class="d-flex gap-2 align-items-center">
+                                            <input type="hidden" name="id" value="<%= p.id %>">
+                                            <label class="small text-muted mb-0 text-nowrap">Corrigir qtd:</label>
+                                            <input type="number" name="nova_quantidade" class="form-control form-control-sm" value="<%= p.quantidade %>" required min="1" style="width: 80px;">
+                                            <button type="submit" class="btn btn-success btn-sm">Salvar Correção</button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <% }) %>
+                        </div>
+                    <% } else { %>
+                        <p class="text-muted text-center mb-4"><small>Nenhum alicate sujo aguardando.</small></p>
+                    <% } %>
+
+                    <h5 class="marca-titulo" style="color: #28a745; border-color: rgba(40, 167, 69, 0.5);">
+                        <i class="bi bi-box-arrow-up"></i> 2. Na Autoclave / Pendente de Devolução
+                    </h5>
+                    <% if(pendentes_entrega && pendentes_entrega.length > 0) { %>
+                        <div class="list-group">
+                            <% pendentes_entrega.forEach(p => { %>
+                                <div class="list-group-item bg-dark text-light border-secondary d-flex justify-content-between align-items-center mb-2 rounded">
+                                    <div>
+                                        Kit de <strong class="text-success"><%= p.manicure %></strong> (<%= p.quantidade %> alicate/s)<br>
+                                        <small class="text-muted">Recebido em: <%= p.data_aprovacao %></small>
+                                    </div>
+                                    <form action="/estoque/devolver" method="POST" class="m-0">
+                                        <input type="hidden" name="id" value="<%= p.id %>">
+                                        <button type="submit" class="btn btn-success btn-sm fw-bold">Devolver Alicates</button>
+                                    </form>
+                                </div>
+                            <% }) %>
+                        </div>
+                    <% } else { %>
+                        <p class="text-muted text-center"><small>Nenhum kit na autoclave no momento.</small></p>
+                    <% } %>
+
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="pesagem" role="tabpanel">
+                <div class="calc-card shadow mt-0">
+                    <div class="d-flex justify-content-end mb-3">
+                        <button class="btn btn-sm btn-outline-warning" onclick="limparTudo()">Limpar Todos os Campos</button>
+                    </div>
+                    <div id="containerProdutos"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mt-4 pt-3 border-top border-secondary d-flex gap-2">
+            <a href="/recepcao" class="btn btn-info w-100 text-white border-0 fw-bold">
+                <i class="bi bi-file-earmark-text"></i> Ver Relatório
+            </a>
+            <a href="/logout" class="btn btn-outline-danger w-100 border-0">Sair do Sistema</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const bancoDeDados = {
+            'TRUSS': [
+                { nome: 'OXs', tara: 90 }, { nome: 'Tintas', tara: 10 },
+                { nome: 'Shampoos / Tratamentos', tara: 80 }, { nome: 'Air Libre / Blanc (Pacote)', tara: 45 },
+                { nome: 'Air Libre / Blanc (Pote Vidro)', tara: 1250 }
+            ],
+            'WELLA': [
+                { nome: 'OXs', tara: 80 }, { nome: 'Tintas', tara: 10 },
+                { nome: 'Shampoos / Tratamentos', tara: 70 }, { nome: 'Pó Descolorante (Pote)', tara: 95 }
+            ],
+            'KEUNE': [
+                { nome: 'OXs', tara: 95 }, { nome: 'Tintas', tara: 10 }, { nome: 'Shampoos / Tratamentos', tara: 75 }
+            ],
+            'GLOSS': [ { nome: 'OX', tara: 78 } ],
+            'OUTROS': [
+                { nome: 'JOICO - Shampoos', tara: 80 }, { nome: 'Senscience - CPR', tara: 80 },
+                { nome: 'Senscience - Máscaras', tara: 80 }, { nome: 'Progressivas / Selagens', tara: 80 },
+                { nome: 'Produtos Pequenos / Leves', tara: 25 }
+            ]
+        };
+
+        const container = document.getElementById('containerProdutos');
+
+        function renderizarTudo() {
+            container.innerHTML = '';
+            for (const [marca, produtos] of Object.entries(bancoDeDados)) {
+                const titulo = document.createElement('h5');
+                titulo.className = 'marca-titulo'; titulo.innerText = marca;
+                container.appendChild(titulo);
+
+                produtos.forEach((prod, index) => {
+                    const uniqueId = `res-${marca}-${index}`; 
+                    const div = document.createElement('div');
+                    div.className = 'produto-row';
+                    
+                    div.innerHTML = `
+                        <div>
+                            <div class="produto-nome">${prod.nome}</div>
+                            <span class="produto-tara">Tara: ${prod.tara}g</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="number" class="form-control input-peso" placeholder="Peso" 
+                                   oninput="calcularLinha(this, ${prod.tara}, '${uniqueId}')">
+                            <div id="${uniqueId}" class="resultado-item">0g</div>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+        }
+
+        function calcularLinha(input, tara, idResultado) {
+            const pesoTotal = parseFloat(input.value);
+            const display = document.getElementById(idResultado);
+            if (pesoTotal > 0) {
+                const liquido = pesoTotal - tara;
+                if (liquido < 0) {
+                    display.style.color = '#dc3545'; display.innerText = "Erro";
+                } else {
+                    display.style.color = '#D4AF37'; display.innerText = liquido + "g";
+                }
+            } else {
+                display.innerText = "0g";
+            }
+        }
+
+        function limparTudo() {
+            const inputs = document.querySelectorAll('.input-peso');
+            inputs.forEach(input => input.value = '');
+            const resultados = document.querySelectorAll('.resultado-item');
+            resultados.forEach(res => { res.innerText = '0g'; res.style.color = '#D4AF37'; });
+        }
+
+        renderizarTudo();
+    </script>
+</body>
+</html>

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> 
+    <title>Painel Administrativo | Beleza Ecoville</title>
+    
+    <link rel="icon" type="image/png" href="/images/logo-icon.png">
+    <link rel="apple-touch-icon" href="/images/logo-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4A3B32">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <style>
+        body { background-color: #f4f6f9; padding-bottom: 50px; font-family: 'Segoe UI', sans-serif; }
+        .card-promo { border: 1px solid #ddd; padding: 15px; border-radius: 12px; background: white; margin-bottom: 20px; transition: 0.3s; }
+        .card-promo:hover { box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .img-preview { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; border: 1px solid #eee; background: #fafafa; }
+        .label-custom { font-size: 0.75rem; font-weight: 700; color: #666; text-transform: uppercase; margin-top: 10px; display: block; }
+        .table input { border: 1px solid transparent; background: transparent; }
+        .table input:focus { border-color: #D4AF37; background: #fff; box-shadow: none; }
+        .navbar-brand img { filter: brightness(0) invert(1); }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-dark bg-dark mb-4 shadow-sm">
+        <div class="container">
+            <span class="navbar-brand">
+                <img src="/images/logo-icon.png" height="30" class="me-2">
+                Painel Administrativo <span class="badge bg-warning text-dark ms-2" style="font-size: 0.6rem;">W-CODE</span>
+            </span>
+            <div class="d-flex align-items-center">
+                <a href="/" target="_blank" class="btn btn-sm btn-outline-info me-2">Ver Site</a>
+                <a href="/logout" class="btn btn-danger btn-sm">Sair</a>
+            </div>
+        </div>
+    </nav>
+
+    <% if (erro) { %>
+        <div class="container mb-4">
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm border-danger" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+                    <div>
+                        <strong>Ops! Não foi possível concluir.</strong><br>
+                        <%= erro %>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    <% } %>
+
+    <div class="container">
+        
+        <section class="mb-4">
+            <div class="card shadow-sm border-0 border-top border-primary border-3">
+                <div class="card-body">
+                    <h5 class="card-title text-primary"><i class="bi bi-graph-up-arrow"></i> Gestão e Relatórios</h5>
+                    <div class="row align-items-end mt-3">
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <a href="/recepcao" class="btn btn-primary w-100 py-3 shadow-sm fw-bold">
+                                <i class="bi bi-file-earmark-bar-graph fs-5 d-block mb-1"></i> Ver Relatório Geral
+                            </a>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="bg-light p-3 rounded border">
+                                <h6 class="small fw-bold text-muted text-uppercase mb-3">Lançar Atendimentos da Semana</h6>
+                                <form action="/atendimentos/adicionar" method="POST" class="row g-2 align-items-center">
+                                    <div class="col-md-4">
+                                        <select name="manicure" class="form-select form-select-sm" required>
+                                            <option value="">Selecione a profissional...</option>
+                                            <% manicures.forEach(m => { %>
+                                                <option value="<%= m.nome %>"><%= m.nome %></option>
+                                            <% }) %>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input type="number" name="quantidade" class="form-control form-control-sm" placeholder="Nº Clientes" required min="1">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input type="date" name="data_referencia" class="form-control form-control-sm" required>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="submit" class="btn btn-success btn-sm w-100">Salvar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-5">
+            <div class="card shadow-sm border-0 border-top border-success border-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title text-success mb-0"><i class="bi bi-people-fill"></i> Gestão de Equipe e Acessos</h5>
+                        <button class="btn btn-success btn-sm fw-bold" data-bs-toggle="collapse" data-bs-target="#formNovoUsuario">
+                            + Novo Usuário
+                        </button>
+                    </div>
+                    
+                    <div class="collapse mb-4 bg-light p-3 rounded border" id="formNovoUsuario">
+                        <form action="/admin/usuarios/adicionar" method="POST" class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label small text-muted mb-1">Nome Completo</label>
+                                <input type="text" name="nome" class="form-control form-control-sm" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small text-muted mb-1">Login de Acesso</label>
+                                <input type="text" name="usuario" class="form-control form-control-sm" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small text-muted mb-1">Senha</label>
+                                <input type="text" name="senha" class="form-control form-control-sm" required>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small text-muted mb-1">Perfil</label>
+                                <select name="perfil" class="form-select form-select-sm" required>
+                                    <option value="manicure">Colaborador(a)</option>
+                                    <option value="estoque">Estoque</option>
+                                    <option value="admin">Administrador</option>
+                                </select>
+                            </div>
+                            <div class="col-md-1 d-flex align-items-end">
+                                <button type="submit" class="btn btn-success btn-sm w-100">Criar</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr class="small text-muted">
+                                    <th>Nome</th>
+                                    <th>Login</th>
+                                    <th>Senha</th>
+                                    <th>Perfil / Permissão</th>
+                                    <th class="text-end">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% usuarios.forEach(u => { %>
+                                    <tr>
+                                        <td class="fw-bold"><%= u.nome %></td>
+                                        <td><%= u.usuario %></td>
+                                        <td><span class="text-muted small">******</span></td>
+                                        <td>
+                                            <% if(u.perfil === 'admin') { %> <span class="badge bg-danger">Admin</span> <% } %>
+                                            <% if(u.perfil === 'estoque') { %> <span class="badge bg-primary">Estoque</span> <% } %>
+                                            <% if(u.perfil === 'manicure') { %> <span class="badge bg-info text-dark">Colaborador(a)</span> <% } %>
+                                        </td>
+                                        <td class="text-end">
+                                            <button class="btn btn-light btn-sm border text-primary me-1" data-bs-toggle="collapse" data-bs-target="#edit-user-<%= u.usuario %>" title="Editar">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <form action="/admin/usuarios/remover" method="POST" class="d-inline">
+                                                <input type="hidden" name="usuario" value="<%= u.usuario %>">
+                                                <button type="submit" class="btn btn-light btn-sm border text-danger" onclick="return confirm('Excluir este acesso do sistema?')" title="Excluir">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    <tr class="collapse bg-light border-bottom" id="edit-user-<%= u.usuario %>">
+                                        <td colspan="5" class="p-3">
+                                            <form action="/admin/usuarios/editar" method="POST" class="row g-2 align-items-end">
+                                                <input type="hidden" name="usuario_antigo" value="<%= u.usuario %>">
+                                                <div class="col-md-3">
+                                                    <label class="small text-muted mb-1">Alterar Nome</label>
+                                                    <input type="text" name="nome" class="form-control form-control-sm" value="<%= u.nome %>" required>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="small text-muted mb-1">Alterar Login</label>
+                                                    <input type="text" name="usuario" class="form-control form-control-sm" value="<%= u.usuario %>" required>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="small text-muted mb-1">Nova Senha</label>
+                                                    <input type="text" name="senha" class="form-control form-control-sm" value="<%= u.senha %>" required>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label class="small text-muted mb-1">Alterar Perfil</label>
+                                                    <select name="perfil" class="form-select form-select-sm" required>
+                                                        <option value="manicure" <%= u.perfil === 'manicure' ? 'selected' : '' %>>Colaborador(a)</option>
+                                                        <option value="estoque" <%= u.perfil === 'estoque' ? 'selected' : '' %>>Estoque</option>
+                                                        <option value="admin" <%= u.perfil === 'admin' ? 'selected' : '' %>>Administrador</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-1">
+                                                    <button type="submit" class="btn btn-success btn-sm w-100">Salvar</button>
+                                                </div>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                                <% if(usuarios.length === 0) { %>
+                                    <tr><td colspan="5" class="text-center text-muted py-4">Nenhum usuário cadastrado manualmente ainda.</td></tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                </div>
+            </div>
+        </section>
+        <section class="mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="h4 mb-0"><i class="bi bi-megaphone-fill me-2 text-primary"></i>Promoções Ativas</h2>
+                <form action="/admin/adicionar-promocao" method="POST">
+                    <button type="submit" class="btn btn-primary btn-sm shadow-sm">+ Nova Promoção</button>
+                </form>
+            </div>
+            
+            <form action="/admin/upload-preview" method="POST" enctype="multipart/form-data">
+                <div class="row">
+                    <% servicosPromos.forEach(promo => { %>
+                        <div class="col-md-4">
+                            <div class="card-promo shadow-sm position-relative">
+                                <button type="submit" formaction="/admin/remover-promocao" name="id" value="<%= promo.id %>" 
+                                        class="btn btn-link text-danger position-absolute top-0 end-0 m-1 p-1" 
+                                        onclick="return confirm('Excluir esta promoção permanentemente?')">
+                                    <i class="bi bi-x-circle-fill fs-5"></i>
+                                </button>
+
+                                <div class="row g-2 mb-2">
+                                    <div class="col-6 text-center">
+                                        <small class="text-muted d-block mb-1">No Ar</small>
+                                        <img src="/images/promos/<%= promo.img %>?v=<%= Date.now() %>" class="img-preview" onerror="this.src='https://via.placeholder.com/150?text=Sem+Foto'">
+                                    </div>
+                                    <div class="col-6 text-center">
+                                        <small class="text-muted d-block mb-1">Nova Prévia</small>
+                                        <img src="/images/promos/temp/temp-promo<%= promo.id %>.jpg?v=<%= Date.now() %>" class="img-preview border-warning" onerror="this.style.display='none'">
+                                    </div>
+                                </div>
+
+                                <label class="label-custom">Trocar Imagem:</label>
+                                <input type="file" name="promo<%= promo.id %>" class="form-control form-control-sm" accept="image/*">
+                                
+                                <label class="label-custom">Link WhatsApp (Texto):</label>
+                                <textarea name="msg_<%= promo.id %>" class="form-control form-control-sm" rows="2"><%= promo.msg %></textarea>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+
+                <% if (servicosPromos.length > 0) { %>
+                    <div class="text-center mt-3">
+                        <button type="submit" class="btn btn-secondary px-5 shadow-sm">1. Carregar Prévias das Imagens</button>
+                    </div>
+                <% } else { %>
+                    <p class="text-center text-muted">Nenhuma promoção cadastrada no momento.</p>
+                <% } %>
+            </form>
+
+            <form action="/admin/publicar" method="POST" class="text-center py-4 bg-white rounded shadow-sm border mt-4">
+                <h5 class="text-success mb-2">Tudo pronto?</h5>
+                <p class="small text-muted mb-3">Ao publicar, as novas imagens e textos aparecerão para todos os clientes.</p>
+                <button type="submit" class="btn btn-success px-5 fw-bold" onclick="return confirm('Publicar agora?')">
+                    2. PUBLICAR ALTERAÇÕES NO SITE 🚀
+                </button>
+            </form>
+        </section>
+
+        <hr class="my-5">
+
+        <section class="mb-5">
+            <h2 class="h4 mb-4"><i class="bi bi-scissors me-2 text-primary"></i>Menu de Serviços (Tempo de Execução)</h2>
+            
+            <% for (let cat in servicos) { %>
+                <div class="card mb-4 shadow-sm border-0">
+                    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
+                        <span class="fw-bold fs-6 text-uppercase"><%= cat %></span>
+                        <button class="btn btn-sm btn-outline-warning" type="button" data-bs-toggle="collapse" data-bs-target="#add-<%= cat.replace(/\s/g, '') %>">
+                            + Novo em <%= cat %>
+                        </button>
+                    </div>
+                    
+                    <div class="card-body p-0">
+                        <div class="collapse p-3 bg-light border-bottom" id="add-<%= cat.replace(/\s/g, '') %>">
+                            <form action="/admin/adicionar-servico" method="POST" class="row g-2">
+                                <input type="hidden" name="categoria" value="<%= cat %>">
+                                <div class="col-md-4"><input type="text" name="nome" class="form-control form-control-sm" placeholder="Nome do Serviço" required></div>
+                                <div class="col-md-2"><input type="text" name="tempo" class="form-control form-control-sm" placeholder="Tempo (ex: 45 min)" required></div>
+                                <div class="col-md-4"><input type="text" name="desc" class="form-control form-control-sm" placeholder="Descrição rápida"></div>
+                                <div class="col-md-2"><button type="submit" class="btn btn-success btn-sm w-100">Adicionar</button></div>
+                            </form>
+                        </div>
+
+                        <form action="/admin/salvar-servicos" method="POST">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr class="small text-muted">
+                                            <th class="ps-3">Serviço</th>
+                                            <th style="width: 140px;">Duração</th>
+                                            <th>Descrição</th>
+                                            <th class="text-center" style="width: 80px;">Ação</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% servicos[cat].forEach((item, index) => { %>
+                                            <tr>
+                                                <td class="ps-3">
+                                                    <input type="hidden" name="categoria" value="<%= cat %>">
+                                                    <input type="text" name="nome" class="form-control form-control-sm fw-bold" value="<%= item.nome %>" required>
+                                                </td>
+                                                <td><input type="text" name="tempo" class="form-control form-control-sm" value="<%= item.tempo %>" required></td>
+                                                <td><input type="text" name="desc" class="form-control form-control-sm" value="<%= item.desc %>"></td>
+                                                <td class="text-center">
+                                                    <button type="submit" formaction="/admin/remover-servico" name="index" value="<%= index %>" 
+                                                            class="btn btn-link text-danger p-0" onclick="return confirm('Remover este item?')">
+                                                        <i class="bi bi-trash-fill"></i>
+                                                    </button>
+                                                    <input type="hidden" name="categoria" value="<%= cat %>">
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>
+                            </div>
+                    </div>
+                </div>
+            <% } %>
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm">
+                    Salvar Alterações nos Serviços
+                </button>
+                <p class="text-muted x-small mt-2">*Lembre-se de salvar após editar os textos acima.</p>
+            </div>
+            </form>
+        </section>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> 
+    <title>Atendimento Júlia | Beleza Ecoville</title>
+    
+    <link rel="icon" type="image/png" href="/images/logo-icon.png">
+    <link rel="apple-touch-icon" href="/images/logo-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4A3B32">
+
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <style>
+        body {
+            margin: 0; padding: 0; font-family: 'Lato', sans-serif;
+            background-color: #121212; height: 100vh; width: 100vw;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        .chat-fullscreen {
+            width: 100%; max-width: 500px; height: 100%;
+            background-color: #1a1a1a; display: flex; flex-direction: column;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .chat-header {
+            background: #2c2c2c; padding: 15px 20px; color: white;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid #333;
+        }
+        .header-info { display: flex; align-items: center; }
+        .avatar { width: 45px; height: 45px; border-radius: 50%; margin-right: 12px; border: 2px solid #D4AF37; object-fit: cover; }
+        .btn-close { color: #aaa; font-size: 1.5rem; text-decoration: none; transition: 0.3s; }
+        .btn-close:hover { color: white; }
+
+        .chat-body {
+            flex: 1; padding: 20px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 10px;
+            background-color: #121212;
+            background-image: radial-gradient(#222 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .message {
+            max-width: 80%; padding: 12px 16px; border-radius: 15px; font-size: 0.95rem; line-height: 1.4;
+            animation: slideIn 0.3s ease; position: relative;
+        }
+        .bot-message { background: #333; color: white; align-self: flex-start; border-top-left-radius: 0; }
+        .user-message { background: #D4AF37; color: #1a1a1a; align-self: flex-end; border-top-right-radius: 0; font-weight: bold; }
+        
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .chat-footer { padding: 15px; background: #1a1a1a; border-top: 1px solid #333; }
+        
+        .btn-opt {
+            width: 100%; padding: 14px; margin-bottom: 8px;
+            background: transparent; border: 1px solid #D4AF37; color: #D4AF37;
+            border-radius: 8px; cursor: pointer; text-transform: uppercase; font-weight: bold; font-size: 0.85rem;
+            transition: 0.2s;
+        }
+        .btn-opt:hover { background: #D4AF37; color: #1a1a1a; }
+        .btn-opt:active { transform: scale(0.98); }
+
+        .typing { font-style: italic; color: #aaa; font-size: 0.8rem; margin-left: 10px; display: none; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="chat-fullscreen">
+        <div class="chat-header">
+            <div class="header-info">
+                <img src="https://img.freepik.com/fotos-gratis/mulher-jovem-e-elegante-sorrindo-para-a-camera_171337-18456.jpg?w=100" class="avatar" alt="Júlia">
+                <div>
+                    <strong style="display: block; font-size: 1.1rem;">Júlia</strong>
+                    <small style="color:#25D366; font-size: 0.8rem;">● Online Agora</small>
+                </div>
+            </div>
+            <a href="/" class="btn-close"><i class="bi bi-x-lg"></i></a>
+        </div>
+
+        <div class="chat-body" id="chatBox">
+            <div class="typing" id="typingInfo">Júlia está digitando...</div>
+        </div>
+
+        <div class="chat-footer" id="btnArea">
+        </div>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chatBox');
+        const btnArea = document.getElementById('btnArea');
+        const typingInfo = document.getElementById('typingInfo');
+
+        function addMsg(text, sender) {
+            const div = document.createElement('div');
+            div.className = `message ${sender}-message`;
+            div.innerHTML = text;
+            chatBox.insertBefore(div, typingInfo);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function typeDelay(ms) {
+            return new Promise(resolve => {
+                typingInfo.style.display = 'block';
+                chatBox.scrollTop = chatBox.scrollHeight;
+                setTimeout(() => {
+                    typingInfo.style.display = 'none';
+                    resolve();
+                }, ms);
+            });
+        }
+
+        function showButtons(options) {
+            btnArea.innerHTML = '';
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-opt';
+                btn.innerHTML = opt.label;
+                btn.onclick = () => {
+                    btnArea.innerHTML = '';
+                    addMsg(opt.label, 'user');
+                    opt.action();
+                };
+                btnArea.appendChild(btn);
+            });
+        }
+
+        async function startChat() {
+            await typeDelay(800);
+            addMsg("Olá! ✨ Seja bem-vindo(a) ao <strong>Beleza Ecoville</strong>.", 'bot');
+            
+            await typeDelay(1200);
+            addMsg("Eu sou a Júlia, a assistente virtual do salão. Estou aqui para agilizar o seu atendimento.", 'bot');
+
+            await typeDelay(1000);
+            addMsg("Como posso te ajudar hoje?", 'bot');
+
+            showButtons([
+                { label: "📅 Quero Agendar", action: flowAgendar },
+                { label: "📍 Ver Localização", action: flowEndereco },
+                { label: "💬 Falar com Humano", action: flowHumano }
+            ]);
+        }
+
+        async function flowAgendar() {
+            await typeDelay(1000);
+            addMsg("Excelente escolha! Nossos profissionais são incríveis. 🥰", 'bot');
+            await typeDelay(1000);
+            addMsg("Vou te encaminhar para o nosso WhatsApp oficial de agendamentos para você escolher o melhor horário, ok?", 'bot');
+            
+            showButtons([
+                { 
+                    label: "<i class='bi bi-whatsapp'></i> Sim, abrir WhatsApp", 
+                    action: () => window.location.href = "https://wa.me/5541995469023?text=Olá Júlia! Vim pelo site e quero agendar." 
+                }
+            ]);
+        }
+
+        async function flowEndereco() {
+            await typeDelay(800);
+            addMsg("Estamos na melhor localização do Mossunguê!", 'bot');
+            addMsg("📍 <strong>R. Prof. Pedro Viriato Parigot de Souza, 2223</strong>", 'bot');
+            
+            showButtons([
+                { 
+                    label: "🚗 Abrir Rota no GPS", 
+                    action: () => window.open("https://www.google.com/maps/dir/?api=1&destination=R.+Prof.+Pedro+Viriato+Parigot+de+Souza,+2223+-+Mossunguê,+Curitiba+-+PR", "_blank") 
+                },
+                { 
+                    label: "Voltar ao início", 
+                    action: startChat 
+                }
+            ]);
+        }
+
+        async function flowHumano() {
+            await typeDelay(800);
+            addMsg("Sem problemas! Se preferir, você pode nos ligar agora mesmo ou chamar no suporte.", 'bot');
+            
+            showButtons([
+                { label: "📞 Ligar (41) 3023-8225", action: () => window.location.href = "tel:4130238225" },
+                { label: "📱 Chamar no WhatsApp", action: () => window.location.href = "https://wa.me/5541995469023" },
+                { label: "Voltar ao início", action: startChat }
+            ]);
+        }
+
+        window.onload = startChat;
+    </script>
+</body>
+</html>
