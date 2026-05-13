@@ -51,17 +51,27 @@ O sistema é organizado em Express 5 com renderização via EJS. Sessões proteg
 
 ---
 
-## Screenshots Planejados
+## Screenshots
 
-> As capturas de tela serão adicionadas após aprovação do portfólio.
+As imagens abaixo apresentam algumas telas do projeto em uso, com dados sensíveis removidos ou ocultados para fins de portfólio.
 
-```
-docs/screenshots/home.png
-docs/screenshots/promocoes.png
-docs/screenshots/chatbot.png
-docs/screenshots/admin.png
-```
+### Home
 
+<img src="docs/screenshots/home.png" alt="Home" width="900">
+
+### Promoções
+
+<img src="docs/screenshots/promocoes.png" alt="Promoções" width="900">
+
+### Chatbot
+
+<img src="docs/screenshots/chatbot.png" alt="Chatbot" width="900">
+
+### Admin
+
+<img src="docs/screenshots/admin.png" alt="Admin" width="900">
+
+---
 ---
 
 ## Estrutura do Projeto
